@@ -1,0 +1,69 @@
+<!-- Validation failure messages -->
+<% if @map.errors.any? %>
+  <% @map.errors.full_messages.each do |message| %>
+    <div class="alert alert-dismissable alert-danger">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      <%= message %>
+    </div>
+  <% end %>
+<% end %>
+
+<div class="page-header">
+
+  <h3>Edit <%= @map.map_name %></h3>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <form action="/update_map/<%= @map.id %>" method="post">
+      <!-- Hidden input for authenticity token to protect from forgery -->
+      <input name="authenticity_token" type="hidden" value="<%= form_authenticity_token %>">
+      <!-- Label and input for map_name -->
+      <div class="form-group">
+        <label for="map_name" class="control-label">
+          Map name (max 50 characters)
+        </label>
+
+        <input type="text" id="map_name" name="map_name" placeholder="Map name" class="form-control" maxlength="50" value="<%= @map.map_name %>">
+      </div>
+      <!-- Label and input for map_description -->
+      <div class="form-group">
+        <label for="map_description" class="control-label">
+          Map description (max 350 characters)
+        </label>
+
+
+        <input type="text" id="map_description" name="map_description" placeholder="Map description" class="form-control" value="<%= @map.map_description %>" maxlength="350">
+      </div>
+  <!-- user_id -->
+  <input type="hidden"  name="user_id"  value="<%= current_user.id %>">
+
+
+      <!-- Label and input for map_image -->
+      <div class="form-group">
+        <div><label for="map_image" class="control-label">
+          Map image
+        </label></div>
+        <div class="form-group">
+          <div><label for="map_image" class="control-label">
+Current Image          </label></div>
+
+
+<div><img src="<%= @map.map_image %>" style="height:300px; width:300px" class="img-responsive"></div>
+<div class="form-group">
+  <div><label for="map_image" class="control-label">
+    New Image URL
+  </label></div>
+        <input type="text" id="map_image" name="map_image" placeholder="Map image" class="form-control" value="<%= @map.map_image %>">
+      </div>
+
+
+
+      <button class="btn btn-warning">
+        Update Map
+      </button>
+      or
+      <a href="/maps/<%= @map.id %>">Cancel</a>
+    </form>
+  </div>
+</div>

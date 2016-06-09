@@ -1,0 +1,107 @@
+<!-- Validation failure messages -->
+<% if @map.errors.any? %>
+  <% @map.errors.full_messages.each do |message| %>
+    <div class="alert alert-dismissable alert-danger">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      <%= message %>
+    </div>
+  <% end %>
+<% end %>
+
+
+<style>
+html {height: 100%}
+body {height:100%; margin: 0px; padding: 0px}
+
+#nav {  padding-top:75px;  margin:0}
+#map {height: 800px;
+width: 100%;
+}
+</style>
+
+
+
+<div id="nav">
+
+
+<div class="col-md-3">
+  <form action="/create_map" method="post">
+    <input name="authenticity_token" type="hidden" value="<%= form_authenticity_token %>">
+
+    <div class="form-group">
+
+        <input type="text"  name="map_name" placeholder="Map name (max 50 characters)" class="form-control" value="<%= @map.map_name %>" maxlength="50">
+
+        <input type="text"  name="map_description" placeholder="Map description (max 350 characters)" class="form-control" value="<%= @map.map_description %>"maxlength="350">
+
+        <input type="text"  name="map_image" placeholder="Map image URL" class="form-control" value="<%= @map.map_image %>">
+<input type="hidden" name="user_id" value="<%= current_user.id %>">
+      </div>
+
+      <button class="btn btn-success">
+        Create Map
+      </button>
+      or
+      <a href="/maps">Cancel</a>
+    </form>
+  </div>
+</div>
+
+
+
+<div class="col-md-9">
+<div id="map"></div>
+
+
+
+
+<script>
+function initMap() {
+  // initiate a new map
+  var mapDiv = document.getElementById('map');
+  var map = new google.maps.Map(mapDiv);
+
+  // An empty bounds variable for seeting automatic zoom level (bounds of map)
+  var bounds = new google.maps.LatLngBounds();
+
+  <%  @map.venues.each do |place|   %>
+
+  // Make info window for this place
+  var infowindow_<%= place.id %> = new google.maps.InfoWindow({
+    content: "<b><%= place.venue_name %></b>"  +
+    "<li><%= place.venue_address %> </li>" +
+    "<li><%= place.venue_description %></li> "
+  });
+
+  // Make marker for this place
+  var marker_<%= place.id %> = new google.maps.Marker({
+    position: {lat: <%= place.lat %>, lng: <%= place.long %>},
+    map: map,
+    title: "<%= place.venue_name %>",
+    icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+  });
+
+  // Click to show info window
+  marker_<%= place.id %>.addListener('click', function() {
+    infowindow_<%= place.id %>.open(map, marker_<%= place.id %>);
+  });
+
+  // Rightclick to edit place
+  marker_<%= place.id %>.addListener('rightclick', function() {
+    window.location.href = 'http://localhost:3000/places/<%= place.id %>/edit'
+
+  });
+
+  // Add this marker in map bounds
+  bounds.extend(new google.maps.LatLng(<%= place.lat %>, <%= place.long %>));
+
+  <% end %>
+
+  // Size map to fit bounds
+  map.fitBounds(bounds);
+};
+
+</script>
+</div>
+<script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
+async defer></script>

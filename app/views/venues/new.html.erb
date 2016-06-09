@@ -1,0 +1,70 @@
+<!-- Validation failure messages -->
+<% if @venue.errors.any? %>
+  <% @venue.errors.full_messages.each do |message| %>
+    <div class="alert alert-dismissable alert-danger">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      <%= message %>
+    </div>
+  <% end %>
+<% end %>
+
+<div class="page-header">
+  <h3>Add Venue</h3>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <form action="/create_venue" method="post">
+      <!-- Hidden input for authenticity token to protect from forgery -->
+      <input name="authenticity_token" type="hidden" value="<%= form_authenticity_token %>">
+
+
+
+        <input type="hidden" id="map_id" name="map_id" placeholder="Map" class="form-control" value="<%= @venue.map_id %>">
+      </div>
+      <!-- Label and input for venue_name -->
+      <div class="form-group">
+        <label for="venue_name" class="control-label">
+          Venue name
+        </label>
+
+        <input type="text" id="venue_name" name="venue_name" placeholder="Venue name" class="form-control" value="<%= @venue.venue_name %>">
+      </div>
+
+
+      <!-- Label and input for venue_photo -->
+      <div class="form-group">
+        <label for="venue_photo" class="control-label">
+          Venue photo
+        </label>
+
+        <input type="text" id="venue_photo" name="venue_photo" placeholder="Venue photo" class="form-control" value="<%= @venue.venue_photo %>">
+      </div>
+
+      <!-- Label and input for venue_address -->
+      <div class="form-group">
+        <label for="venue_address" class="control-label">
+          Venue address
+        </label>
+
+        <input type="text" id="venue_address" name="venue_address" placeholder="Venue address" class="form-control" value="<%= @venue.venue_address %>">
+      </div>
+
+      <!-- Label and input for venue_description -->
+      <div class="form-group">
+        <label for="venue_description" class="control-label">
+          Venue description
+        </label>
+
+        <textarea id="venue_description" name="venue_description" placeholder="Venue description" class="form-control" rows="3"><%= @venue.venue_description %></textarea>
+      </div>
+
+
+      <button class="btn btn-success">
+        Create Venue
+      </button>
+      or
+      <a href="/maps/<%= @venue.map_id%>">Cancel</a>
+    </form>
+  </div>
+</div>

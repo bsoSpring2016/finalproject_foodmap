@@ -1,0 +1,36 @@
+
+
+
+<div class="row">
+<% current_user.maps.each do |map| %>
+<div class="col-md-4">
+<div class="panel" style="min-height:450px">
+
+<!-- edit and delete buttons  -->
+<div class="panel-heading" style="text-align: right" >
+  <a href="/maps/<%= map.id %>/edit" rel="nofollow"><i class="fa fa-fw fa-edit"></i></a> <a href="/delete_map/<%= map.id %>" rel="nofollow"><i class="fa fa-fw fa-trash"></i></a>
+</div>
+
+
+<!-- image link for the map -->
+  <div class="panel-body">
+    <a href="/maps/<%= map.id %>"><img src="<%= map.map_image%>" class="img-responsive" alt="No photo" style="min-height:300px; max-height:300px; min-width:100%"></a> <h4><%= map.map_name %></h4>  <h6><%= map.map_description %> </h6>
+ </div>
+
+
+</div>
+</div>
+
+<% end %>
+
+<div class="col-md-4" style="float:left">
+  <div class ="panel panel-default">
+    <div class="panel-body" style="text-align:center">
+      <a href="/maps/new"><i class="fa fa-plus-circle fa-5x" aria-hidden="true"></i><h3>Add New Map</h3> </a>
+    </div>
+  </div>
+</div>
+
+
+
+</div>

@@ -1,0 +1,203 @@
+<% if @venue.errors.any? %>
+  <% @venue.errors.full_messages.each do |message| %>
+    <div class="alert alert-dismissable alert-danger">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      <%= message %>
+    </div>
+  <% end %>
+<% end %>
+
+
+<style>
+html {height: 100%}
+body {height:100%; margin: 0px; padding: 0px}
+#meh {padding-top:60px}
+#nav {padding-top:10px;  margin:0; }
+#map {height: 750px;
+width: 100%;
+
+
+}
+</style>
+
+<div id="meh">
+  <div class="col-md-4 col-md-offset-7">
+  <a href="/maps/<%= @map.id %>">Recenter Map</a>
+</div>
+</div>
+
+<div id="nav">
+<div class="col-md-3" style="max-height: 750px; overflow:scroll ">
+  <div class="panel-group" >
+  <div class="panel panel-default">
+
+  <div class="panel-body">
+      <b><h4><%= @map.map_name  %></h4></b>
+  <img src="<%= @map.map_image %>" class="img-responsive" alt="Responsive image"><%= @map.map_description  %>
+</div>
+</div>
+
+  <% @map.venues.each do |venue| %>
+
+  <div class="panel">
+    <div class="panel-heading" style="text-align: right" >
+      <a href="/venues/<%= venue.id %>/edit" rel="nofollow"><i class="fa fa-fw fa-edit"></i></a> <a href="/delete_venue/<%= venue.id %>" rel="nofollow"><i class="fa fa-fw fa-trash"></i></a>
+    </div>
+  <!-- image link for the map -->
+  <h5><img src="http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=<%=@i%>|FF0000|000000"> <b><%= venue.venue_name %></b></h5>
+    <div class="panel-body">
+  <img src="<%= venue.venue_photo%>" class="img-responsive" alt="Responsive image"></div>
+
+  <!-- map name  -->
+<div><b>Description:</b> <%= venue.venue_description %></div>
+<div><b>Address:</b> <%= venue.venue_address %></div>
+<a href='http://www.google.com/maps?q=<%= venue.lat %>,<%= venue.long %>' target="_blank">Directions</a>
+    </div>
+    <% @i = @i +1%>
+    <% @array.push [venue.lat, venue.long] %>
+
+  <% end %>
+
+<% @array.map do |x,y|%>
+<% @urlarray << "#{x},#{y}/"%>
+<% end %>
+
+
+
+<div class="panel panel-default">
+      <form action="/create_venue" method="post">
+        <!-- Hidden input for authenticity token to protect from forgery -->
+        <input name="authenticity_token" type="hidden" value="<%= form_authenticity_token %>">
+        <!-- Label and input for map_id -->
+          <input type="hidden" id="map_id" name="map_id" placeholder="Map" class="form-control" value="<%= @map.id %>">
+
+          <div class="panel panel-body">
+
+        <!-- Label and input for venue_name -->
+        <div class="form-group">
+          <input type="text" id="venue_name" name="venue_name" placeholder="Venue name" class="form-control" value="<%= @venue.venue_name %>">
+        </div>
+        <!-- Label and input for venue_photo -->
+        <div class="form-group">
+          <input type="text" id="venue_photo" name="venue_photo" placeholder="Venue photo" class="form-control" value="<%= @venue.venue_photo %>">
+        </div>
+  <!-- Label and input for venue_address -->
+  <div class="form-group">
+    <input type="text" id="venue_address" name="venue_address" placeholder="Venue address" class="form-control" value="<%= @venue.venue_address %>">
+  </div>
+
+  <!-- Label and input for venue_description -->
+  <div class="form-group">
+    <textarea id="venue_description" name="venue_description" placeholder="Venue description" class="form-control" rows="3"><%= @venue.venue_description %></textarea>
+  </div>
+      </div>
+
+
+        <button class="btn btn-success">
+          Create Venue
+        </button>
+      </form>
+
+</div>
+
+
+
+  <!-- div for column -->
+</div>
+</div>
+<!-- div for nav id  -->
+</div>
+
+<div class="col-md-9">
+<div id="map"></div>
+
+
+<script>
+function initMap() {
+  // initiate a new map
+  var mapDiv = document.getElementById('map');
+  var map = new google.maps.Map(mapDiv);
+
+  // An empty bounds variable for seeting automatic zoom level (bounds of map)
+  var bounds = new google.maps.LatLngBounds();
+
+  <%  @map.venues.each do |place|   %>
+
+  // Make info window for this place
+  var infowindow_<%= place.id %> = new google.maps.InfoWindow({
+    content:  "<h5><%= place.venue_name %></h5>"  +
+    "<ul><b>Address:</b> <%= place.venue_address %></ul> " +
+    "<ul><b>Description:</b> <%= place.venue_description %></ul> "
+  });
+
+
+
+
+  // Make marker for this place
+  var marker_<%= place.id %> = new google.maps.Marker({
+    position: {lat: <%= place.lat %>, lng: <%= place.long %>},
+    map: map,
+    title: "<%= place.venue_name %>",
+ icon: 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=<%=@b%>|FF0000|000000',
+
+  });
+
+  // Click to show info window
+  marker_<%= place.id %>.addListener('click', function() {
+    infowindow_<%= place.id %>.open(map, marker_<%= place.id %>);
+      map.setCenter(marker_<%= place.id %>.getPosition());
+  });
+
+  // Add this marker in map bounds
+  bounds.extend(new google.maps.LatLng(<%= place.lat %>, <%= place.long %>));
+<% @b = @b +1  %>
+  <% end %>
+
+  // Size map to fit bounds
+  map.fitBounds(bounds);
+
+  function CenterControl(controlDiv, map) {
+
+    // Set CSS for the control border.
+    var controlUI = document.createElement('div');
+    controlUI.style.backgroundColor = '#C00';
+    controlUI.style.border = '2px solid #fff';
+    controlUI.style.borderRadius = '5px';
+    controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+    controlUI.style.cursor = 'pointer';
+    controlUI.style.marginBottom = '22px';
+    controlUI.style.textAlign = 'center';
+    controlUI.title = 'Create Path';
+    controlDiv.appendChild(controlUI);
+
+    // Set CSS for the control interior.
+    var controlText = document.createElement('div');
+    controlText.style.color = 'rgb(25,25,25)';
+    controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+    controlText.style.fontSize = '16px';
+    controlText.style.lineHeight = '38px';
+    controlText.style.paddingLeft = '5px';
+    controlText.style.paddingRight = '5px';
+    controlText.innerHTML = 'Create Path';
+    controlUI.appendChild(controlText);
+
+    // Setup the click event listeners: link to google maps with pre-populated directions
+    controlUI.addEventListener('click', function() {
+      window.location.href = "http://www.google.com/maps/dir/<%= @urlarray.join %>";
+    });
+
+
+  }
+  var centerControlDiv = document.createElement('div');
+   var centerControl = new CenterControl(centerControlDiv, map);
+
+   centerControlDiv.index = 1;
+   map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv);
+
+
+};
+
+</script>
+</div>
+<script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
+async defer></script>
